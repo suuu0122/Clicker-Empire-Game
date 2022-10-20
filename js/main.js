@@ -75,6 +75,7 @@ function createInitialPage() {
 				<button type="submit" class="btn btn-primary col-12" id="login">Login</button>
 			</div>
 		</div>
+		
 	`
 	
 	config.initialPage.append(container);
@@ -93,7 +94,8 @@ function createMainPage(user) {
 						<h5 id="burgerPrice">one click ￥${user.burgerPrice}</h5>
 					</div>
 					<input type="image" src="img/burger.webp" class="d-block m-auto img-size-burger" id="burgerClick">
-					<button class="btn btn-primary mb-3 save-btn-font-size" id="saveBtn">save</button>
+					<button class="btn btn-primary mb-3 save-btn-font-size" id="saveBtn">Save</button>
+					<button class="btn btn-primary mb-3 save-btn-font-size" id="deleteBtn">Delete</button>
 				</div>
 				<div class="bg-dark m-2 col-8">
 					<div class="d-flex justify-content-center">
@@ -150,20 +152,36 @@ function createMainPage(user) {
 		document.getElementById("haveMoney").innerHTML = "￥" + user.haveMoney;
 	});
 
-	// saveボタンがクリックされた時のイベント処理
+	// Saveボタンがクリックされた時のイベント処理
 	let saveBtn = document.getElementById("saveBtn");
 	saveBtn.addEventListener("click", function() {
 		// ユーザ情報をJSONにエンコード
-		let jsonEncoded = JSON.stringify(user);
+		let userJsonEncoded = JSON.stringify(user);
 
 		// localStrageを使ってユーザーのブラウザ上にデータを保存
-		localStorage.setItem(user.userName, jsonEncoded);
+		localStorage.setItem(user.userName, userJsonEncoded);
 
 		displayNone(config.mainPage);
 		config.mainPage.innerHTML = "";
 		createInitialPage();
 		displayBlock(config.initialPage);
 	});
+
+	// Daleteボタンがクリックされた時のイベント処理
+	let deleteBtn = document.getElementById("deleteBtn");
+	deleteBtn.addEventListener("click", function() {
+		let userData = localStorage.getItem(user.userName);
+		if (userData === null) {
+			alert("no data in local storage");
+		} 
+		else {
+			localStorage.removeItem(user.userName);
+			displayNone(config.mainPage);
+			config.mainPage.innerHTML = "";
+			createInitialPage();
+			displayBlock(config.initialPage);
+		}
+	})
 }
 
 // サイドページ作成のための関数
