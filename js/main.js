@@ -9,6 +9,7 @@ class UserInfo {
 		this.userName = userName;
 		this.haveBurgers = 0;
 		this.haveMoney = 50000;
+		this.pastDays = 0;
 		this.age = 20;
 		this.purchaseItems = {}
 	}
@@ -30,6 +31,16 @@ let itemsInstance = [
 	new Items("img/etf.webp", "ETF Stock", 300000, 0.1, "infinite"),
 	new Items("img/etf.webp", "ETF Bonds", 300000, 0.07, "infinite")
 ];
+
+// アイテムの名前から利益を返すための関数
+function getItemProfit(itemName) {
+	for (let i = 0; i < itemsInstance.length; i++) {
+		if (itemName === itemsInstance[i].imgName) {
+			return itemsInstance[i].profit;
+		}
+	}
+	return None;
+}
 
 // ログインページ作成のための関数
 function createInitialPage() {
@@ -72,6 +83,7 @@ function createMainPage(user) {
 						<h5>one click ￥25</h5>
 					</div>
 					<input type="image" src="img/burger.webp" class="d-block m-auto img-size-burger" id="burgerClick">
+					<button class="btn btn-primary mb-3 save-btn-font-size">save</button>
 				</div>
 				<div class="bg-dark m-2 col-8">
 					<div class="d-flex justify-content-center">
@@ -182,7 +194,7 @@ function createSidePage(user, item) {
 			alert("money shortage");
 		}
 		else {
-			tempNumUnitsPurchased = item.numUnitsPurchased + parseInt(purchaseNum.value);
+			tempNumUnitsPurchased = user.purchaseItems[item.imgName] + parseInt(purchaseNum.value);
 			if (tempNumUnitsPurchased > item.maxPurchase) {
 				alert("over max purchases");
 			}
@@ -216,16 +228,17 @@ function sidePageController(user, item) {
 }
 
 // 1秒ごとに情報を更新するための関数
-function updateEverySecond(times, user) {
-	document.getElementById("days").innerHTML = `${times}days`
+function updateEverySecond(user) {
+	document.getElementById("days").innerHTML = `${user.pastDays}days`
 
-	if (times > 365 && times % 365 === 0) {
+	if (user.pastDays > 365 && user.pastDays % 365 === 0) {
 		user.age += 1;
 		document.getElementById("age").innerHTML = `${user.age} years old`
 	}
 
-	for (let i = 0; i < itemsInstance.length; i++) {
-		user.haveMoney += itemsInstance[i].profit * itemsInstance[i].numUnitsPurchased;
+	let key = Object.keys(user.purchaseItems);
+	for (let i = 0; i < key.length; i++) {
+		user.haveMoney += getItemProfit(key[i]) * user.purchaseItems[key[i]];
 	}
 	document.getElementById("haveMoney").innerHTML = `￥${user.haveMoney}`
 }
@@ -238,9 +251,8 @@ for (let i = 0; i < itemsInstance.length; i++) {
 
 createMainPage(user);
 
-let times = 0;
 setInterval(function() {
-	updateEverySecond(times, user);
-	times++;
+	updateEverySecond(user);
+	user.pastDays++;
 }, 1000)
 
