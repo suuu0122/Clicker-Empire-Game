@@ -10,26 +10,28 @@ class UserInfo {
 		this.haveBurgers = 0;
 		this.haveMoney = 50000;
 		this.age = 20;
+		this.purchaseItems = {}
 	}
 }
 
 class Items {
-	constructor(imgUrl, imgName, cost, numUnitsPurchased, profit, maxPurchase) {
+	constructor(imgUrl, imgName, cost, profit, maxPurchase) {
 		this.imgUrl = imgUrl;
 		this.imgName = imgName;
 		this.cost = cost;
-		this.numUnitsPurchased = numUnitsPurchased;
 		this.profit = profit;
 		this.maxPurchase = maxPurchase
 	}
 }
 
+// 購入できるアイテムの生成
 let itemsInstance = [
-	new Items("img/flipMachine.webp", "Flip machine", "￥15000", 0, "￥25/click", 500),
-	new Items("img/etf.webp", "ETF Stock", "￥300000", 0, "￥0.1/sec", "infinite"),
-	new Items("img/etf.webp", "ETF Bonds", "￥300000", 0, "￥0.07/sec", "infinite")
+	new Items("img/flipMachine.webp", "Flip machine", 15000, 25, 500),
+	new Items("img/etf.webp", "ETF Stock", 300000, 0.1, "infinite"),
+	new Items("img/etf.webp", "ETF Bonds", 300000, 0.07, "infinite")
 ];
 
+// ログインページ作成のための関数
 function createInitialPage() {
 	let container = document.createElement("div");
 	container.classList.add("vh-100", "d-flex", "justify-content-center", "align-items-center");
@@ -57,6 +59,7 @@ function createInitialPage() {
 	return config.initialPage.append(container);
 }
 
+// メインページ作成のための関数
 function createMainPage(user) {
 	let container = '<div class="bg-dark">';
 	container += 
@@ -76,12 +79,12 @@ function createMainPage(user) {
 							<h5>${user.userName}</h5>
 						</div>
 						<div class="col-6 bg-primary m-1">
-							<h5>${user.age} years old</h5>
+							<h5 id="age">${user.age} years old</h5>
 						</div>
 					</div>
 					<div class="d-flex justify-content-center">
 						<div class="col-6 bg-primary m-1">
-							<h5>days</h5>
+							<h5 id="days">0days</h5>
 						</div>
 						<div class="col-6 bg-primary m-1">
 							<h5 id="haveMoney">￥${user.haveMoney}</h5>
@@ -96,11 +99,11 @@ function createMainPage(user) {
 				<img src=${itemsInstance[i].imgUrl} class="col img-size-items">
 				<div class="col d-flex my-auto flex-column">
 					<h3>${itemsInstance[i].imgName}</h3>
-					<h5>${itemsInstance[i].cost}</h5>
+					<h5>￥${itemsInstance[i].cost}</h5>
 				</div>
 				<div class="col d-flex my-auto flex-column text-right">
-					<h3 class="pull-right">${itemsInstance[i].numUnitsPurchased}</h3>
-					<h5 class="text-warning">${itemsInstance[i].profit}</h5>
+					<h3 class="pull-right" id="${itemsInstance[i].imgName}">0</h3>
+					<h5 class="text-warning">￥${itemsInstance[i].profit} /sec</h5>
 				</div>
 			</div>
 		`
@@ -113,8 +116,18 @@ function createMainPage(user) {
 			sidePageController(user, itemsInstance[i]);
 		})
 	}
+
+	let bugerClick = document.getElementById("burgerClick");
+	bugerClick.addEventListener("click", function() {
+		user.haveBurgers += 1;
+		document.getElementById("haveBurgers").innerHTML = user.haveBurgers + " Burgers";
+
+		user.haveMoney += 25;
+		document.getElementById("haveMoney").innerHTML = "￥" + user.haveMoney;
+	});
 }
 
+// サイドページ作成のための関数
 function createSidePage(user, item) {
 	let container = '';
 	container += 
@@ -127,13 +140,14 @@ function createSidePage(user, item) {
 					<div class="d-flex flex-column">
 						<h3 class="py-4">${item.imgName}</h3>
 						<h5 class="py-3">Max purchases: ${item.maxPurchase}</h5>
-						<h5 class="py-3">Price: ${item.cost}</h5>
+						<h5 class="py-3">Price: ￥${item.cost}</h5>
 						<h5 class="py-3">Get: ${item.profit}</h5>
 					</div>
 					<img src=${item.imgUrl} class="img-size-items">
 				</div>
 				<h5 class="py-3">How many would you like to buy?</h5>
-				<input type="number" value="0" min="0" class="input-size"></input>
+				<input type="number" value="0" min="0" class="input-size" id="purchaseNum"></input>
+				<h5 class="py-1" id="total">total: ￥0<h5>
 				<div class="d-flex justify-content-center p-3">
 					<div class="col-4">
 						<button type="submit" class="btn btn-success col-12" id="backBtn">Go Back</button>
@@ -151,6 +165,36 @@ function createSidePage(user, item) {
 	document.getElementById("backBtn").addEventListener("click", function() {
 		displayNone(config.sidePage);
 		displayBlock(config.mainPage);
+	})
+
+	let purchaseNum = document.getElementById("purchaseNum");
+	purchaseNum.addEventListener("change", function() {
+		total = item.cost * parseInt(purchaseNum.value);
+		document.getElementById("total").innerHTML = `total ￥${total}`
+	})
+
+	let purchaseBtn = document.getElementById("purchaseBtn");
+	purchaseBtn.addEventListener("click", function() {
+		if (parseInt(purchaseNum.value) === 0) {
+			alert("invalid value");
+		}
+		else if (total > user.haveMoney) {
+			alert("money shortage");
+		}
+		else {
+			tempNumUnitsPurchased = item.numUnitsPurchased + parseInt(purchaseNum.value);
+			if (tempNumUnitsPurchased > item.maxPurchase) {
+				alert("over max purchases");
+			}
+			else {
+				user.haveMoney -= total;
+				user.purchaseItems[item.imgName] += parseInt(purchaseNum.value);
+				document.getElementById("haveMoney").innerHTML = `￥${user.haveMoney}`;
+				document.getElementById(item.imgName).innerHTML = user.purchaseItems[item.imgName];
+				displayNone(config.sidePage);
+				displayBlock(config.mainPage);
+			}
+		}
 	})
 }
 
@@ -171,15 +215,32 @@ function sidePageController(user, item) {
 	createSidePage(user, item);
 }
 
+// 1秒ごとに情報を更新するための関数
+function updateEverySecond(times, user) {
+	document.getElementById("days").innerHTML = `${times}days`
+
+	if (times > 365 && times % 365 === 0) {
+		user.age += 1;
+		document.getElementById("age").innerHTML = `${user.age} years old`
+	}
+
+	for (let i = 0; i < itemsInstance.length; i++) {
+		user.haveMoney += itemsInstance[i].profit * itemsInstance[i].numUnitsPurchased;
+	}
+	document.getElementById("haveMoney").innerHTML = `￥${user.haveMoney}`
+}
+
+// ゲーム開始
 let user = new UserInfo("suuu");
+for (let i = 0; i < itemsInstance.length; i++) {
+	user.purchaseItems[itemsInstance[i].imgName] = 0;
+}
+
 createMainPage(user);
 
-let bugerClick = document.getElementById("burgerClick");
-bugerClick.addEventListener("click", function() {
-	user.haveBurgers += 1;
-	document.getElementById("haveBurgers").innerHTML = user.haveBurgers + " Burgers";
-
-	user.haveMoney += 25;
-	document.getElementById("haveMoney").innerHTML = "￥" + user.haveMoney;
-});
+let times = 0;
+setInterval(function() {
+	updateEverySecond(times, user);
+	times++;
+}, 1000)
 
