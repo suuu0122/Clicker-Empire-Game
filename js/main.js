@@ -53,7 +53,7 @@ function createInitialPage() {
 			<form>
 				<div class="form-row p-3">
 					<div class="col">
-						<input type="text" class="form-control" placeholder="Your Name">
+						<input type="name" class="form-control" placeholder="Your Name" id="userName">
 					<div>
 				</div>
 			</form>
@@ -67,7 +67,7 @@ function createInitialPage() {
 		</div>
 	`
 	
-	return config.initialPage.append(container);
+	config.initialPage.append(container);
 }
 
 // メインページ作成のための関数
@@ -243,16 +243,35 @@ function updateEverySecond(user) {
 	document.getElementById("haveMoney").innerHTML = `￥${user.haveMoney}`
 }
 
-// ゲーム開始
-let user = new UserInfo("suuu");
-for (let i = 0; i < itemsInstance.length; i++) {
-	user.purchaseItems[itemsInstance[i].imgName] = 0;
+// ゲームスタートのための関数
+function startGame() {
+	createInitialPage();
+
+	let newGame = document.getElementById("newGame");
+	newGame.addEventListener("click", function() {
+		let userName = document.getElementById("userName").value;
+		if (userName === "") {
+			alert("Please input your name")
+		}
+		else {
+			let user = new UserInfo(userName);
+			for (let i = 0; i < itemsInstance.length; i++) {
+				user.purchaseItems[itemsInstance[i].imgName] = 0;
+			}
+
+			displayNone(config.initialPage);
+			config.initialPage.innerHTML = "";
+			createMainPage(user);
+			displayBlock(config.mainPage);
+
+			setInterval(function() {
+				updateEverySecond(user);
+				user.pastDays++;
+			}, 1000);
+		}
+	})
 }
 
-createMainPage(user);
-
-setInterval(function() {
-	updateEverySecond(user);
-	user.pastDays++;
-}, 1000)
+// ゲームスタート
+startGame();
 
