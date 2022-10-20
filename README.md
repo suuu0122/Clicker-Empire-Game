@@ -3,6 +3,19 @@
 # OverView
 仕事や投資、不動産等でお金を稼ぐインクリメンタルゲームです。コンピュータサイエンス学習サービス[Recursion](https://recursionist.io/)のアウトプットプロジェクト（Clicker Empire Game）として取り組みました。
 
+# Demo
+[こちらのリンク](https://suuu0122.github.io/Clicker-Empire-Game/)からゲームページに飛べます。
+
+# LearningMatter
+* JavaScript
+	* JavaScriptでの少し複雑なイベント処理
+	* 一定間隔での繰り返し処理（setInterval）
+* JSON
+	* ユーザ認証
+	* json文字列へのエンコード
+	* json文字列のデコード
+	* localStorage
+
 # Rule
 | 名前                                   | タイプ | 最大購入数 | 説明                           | 値段
 |---------------------------------------|-------|------|------------------------------------|-------|
@@ -17,16 +30,3 @@
 | 産業スペース（Industrial Space）         | 不動産 | 10   | 毎秒 2,200,000 円を取得します。        | 1,000,000,000 |
 | 高層ホテル（Hotel Skyscraper）          | 不動産 | 5    | 毎秒 25,000,000 円を取得します。        | 10,000,000,000 |
 | 新幹線（Bullet-Speed Sky Railway）      | 不動産 | 1    | 毎秒 30,000,000,000 円を取得します。        | 10,000,000,000,000 |
-
-# Demo
-[こちらのリンク]()からゲームページに飛べます。
-
-# LearningMatter
-* JavaScript
-	* JavaScriptでの少し複雑なイベント処理
-	* 一定間隔での繰り返し処理（setInterval）
-* JSON
-	* ユーザ認証
-	* json文字列へのエンコード
-	* json文字列のデコード
-	* localStorage
