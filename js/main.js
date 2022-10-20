@@ -12,7 +12,11 @@ class UserInfo {
 		this.haveMoney = 50000;
 		this.pastDays = 0;
 		this.age = 20;
-		this.purchaseItems = {}
+		this.purchaseItems = {};
+		this.etf = {
+			"etfStock": 0,
+			"etfBonds": 0
+		}
 	}
 }
 
@@ -30,8 +34,8 @@ class Items {
 // 購入できるアイテムの生成
 let itemsInstance = [
 	new Items("img/flipMachine.webp", "Flip machine", 15000, 25, "￥25 /click", 500),
-	new Items("img/etf.webp", "ETF Stock", 300000, 0.1, "￥0.1 /sec", "infinite"),
-	new Items("img/etf.webp", "ETF Bonds", 300000, 0.07, "￥0.07 /sec", "infinite"),
+	new Items("img/etf.webp", "ETF Stock", 300000, 0.1, "0.1% /sec", "infinite"),
+	new Items("img/etf.webp", "ETF Bonds", 300000, 0.07, "0.07% /sec", "infinite"),
 	new Items("img/lemonade.webp", "Lemonade Stand", 30000, 30, "￥30 /sec", 1000),
 	new Items("img/iceCream.png", "Ice Cream Truck", 100000, 120, "￥120 /sec", 500),
 	new Items("img/house.webp", "House", 20000000, 32000, "￥32000 /sec", 100),
@@ -123,10 +127,10 @@ function createMainPage(user) {
 				<img src=${itemsInstance[i].imgUrl} class="col img-size-items">
 				<div class="col d-flex my-auto flex-column">
 					<h3>${itemsInstance[i].imgName}</h3>
-					<h5>￥${itemsInstance[i].cost}</h5>
+					<h5 id="${itemsInstance[i].imgName}Cost">￥${itemsInstance[i].cost}</h5>
 				</div>
 				<div class="col d-flex my-auto flex-column text-right">
-					<h3 class="pull-right" id="${itemsInstance[i].imgName}">${user.purchaseItems[itemsInstance[i].imgName]}</h3>
+					<h3 class="pull-right" id="${itemsInstance[i].imgName}Purchase">${user.purchaseItems[itemsInstance[i].imgName]}</h3>
 					<h5 class="text-warning">${itemsInstance[i].profitHtml}</h5>
 				</div>
 			</div>
@@ -227,9 +231,23 @@ function createSidePage(user, item) {
 
 	// アイテム購入数が変更された時のイベント処理
 	let purchaseNum = document.getElementById("purchaseNum");
+	let total = 0;
 	purchaseNum.addEventListener("change", function() {
-		total = item.cost * parseInt(purchaseNum.value);
-		document.getElementById("total").innerHTML = `total ￥${total}`
+		let etfRate = 1;
+		if (item.imgName === "ETF Stock") {
+			let etfTotalRate = 0;
+			for (let i = 0; i < parseInt(purchaseNum.value); i++) {
+				etfTotalRate += etfRate
+				etfRate *= 1.1;
+			}
+			total = Math.floor(item.cost * etfTotalRate);
+			document.getElementById("total").innerHTML = `total ￥${total}`;
+		}
+		else {
+			total = item.cost * parseInt(purchaseNum.value);
+			document.getElementById("total").innerHTML = `total ￥${total}`
+			console.log(2);
+		}
 	})
 
 	// Purchaseボタンが押された時のイベント処理
@@ -259,10 +277,21 @@ function createSidePage(user, item) {
 				user.haveMoney -= total;
 				user.purchaseItems[item.imgName] += parseInt(purchaseNum.value);
 				document.getElementById("haveMoney").innerHTML = `￥${user.haveMoney}`;
-				document.getElementById(item.imgName).innerHTML = user.purchaseItems[item.imgName];
+				document.getElementById(item.imgName+"Purchase").innerHTML = user.purchaseItems[item.imgName];
+				// Flip machineのときはバーガークリックで得られるお金を25円増やす
 				if (item.imgName === "Flip machine") {
 					user.burgerPrice += 25 * parseInt(purchaseNum.value);
 					document.getElementById("burgerPrice").innerHTML = `one click ￥${user.burgerPrice}`;
+				}
+				// ETF Stockのときは購入個数に応じて値段を10%増やす
+				if (item.imgName === "ETF Stock") {
+					user.etf["etfStock"] += total;
+					let etfRate = 1 * 1.1 ** purchaseNum.value;
+					item.cost = Math.floor(item.cost * etfRate);
+					document.getElementById(item.imgName+"Cost").innerHTML = `￥${item.cost}`;
+				}
+				if (item.imgName === "ETF Bonds") {
+					user.etf["etfBonds"] += total;
 				}
 				displayNone(config.sidePage);
 				displayBlock(config.mainPage);
@@ -301,7 +330,13 @@ function updateEverySecond(user) {
 	// ユーザの所持金更新
 	let key = Object.keys(user.purchaseItems);
 	for (let i = 0; i < key.length; i++) {
-		if (key[i] !== "Flip machine") {
+		if (key[i] === "ETF Stock") {
+			user.haveMoney += user.etf["etfStock"] * 0.1;
+		}
+		else if (key[i] === "ETF Bonds") {
+			user.haveMoney += user.etf["etfBonds"] * 0.07;
+		}
+		else if (key[i] !== "Flip machine") {
 			user.haveMoney += getItemProfit(key[i]) * user.purchaseItems[key[i]];
 		}
 	}
