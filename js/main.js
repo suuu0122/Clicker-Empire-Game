@@ -8,6 +8,7 @@ class UserInfo {
 	constructor(userName) {
 		this.userName = userName;
 		this.haveBurgers = 0;
+		this.burgerPrice = 25;
 		this.haveMoney = 50000;
 		this.pastDays = 0;
 		this.age = 20;
@@ -16,20 +17,29 @@ class UserInfo {
 }
 
 class Items {
-	constructor(imgUrl, imgName, cost, profit, maxPurchase) {
+	constructor(imgUrl, imgName, cost, profit, profitHtml, maxPurchase) {
 		this.imgUrl = imgUrl;
 		this.imgName = imgName;
 		this.cost = cost;
 		this.profit = profit;
+		this.profitHtml = profitHtml;
 		this.maxPurchase = maxPurchase
 	}
 }
 
 // 購入できるアイテムの生成
 let itemsInstance = [
-	new Items("img/flipMachine.webp", "Flip machine", 15000, 25, 500),
-	new Items("img/etf.webp", "ETF Stock", 300000, 0.1, "infinite"),
-	new Items("img/etf.webp", "ETF Bonds", 300000, 0.07, "infinite")
+	new Items("img/flipMachine.webp", "Flip machine", 15000, 25, "￥25 /click", 500),
+	new Items("img/etf.webp", "ETF Stock", 300000, 0.1, "￥0.1 /sec", "infinite"),
+	new Items("img/etf.webp", "ETF Bonds", 300000, 0.07, "￥0.07 /sec", "infinite"),
+	new Items("img/lemonade.webp", "Lemonade Stand", 30000, 30, "￥30 /sec", 1000),
+	new Items("img/iceCream.png", "Ice Cream Truck", 100000, 120, "￥120 /sec", 500),
+	new Items("img/house.webp", "House", 20000000, 32000, "￥32000 /sec", 100),
+	new Items("img/townHouse.webp", "TownHouse", 40000000, 64000, "￥64000 /sec", 100),
+	new Items("img/mansion.webp", "Mansion", 250000000, 500000, "￥500000 /sec", 20),
+	new Items("img/industrialSpace.webp", "Industrial Space", 1000000000, 2200000, "￥2200000 /sec", 10),
+	new Items("img/hotel.png", "Hotel Skyscraper", 10000000000, 25000000, "￥25000000 /sec", 5),
+	new Items("img/railway.webp", "Bullet-Speed Sky Railway", 10000000000000, 30000000000, "￥30000000000 /sec", 1)
 ];
 
 // アイテムの名前から利益を返すための関数
@@ -39,7 +49,7 @@ function getItemProfit(itemName) {
 			return itemsInstance[i].profit;
 		}
 	}
-	return None;
+	return null;
 }
 
 // ログインページ作成のための関数
@@ -80,10 +90,10 @@ function createMainPage(user) {
 				<div class="d-flex flex-column bg-dark m-2 col-3">
 					<div class="bg-primary m-2">
 						<h3 id="haveBurgers">${user.haveBurgers} Burgers</h3>
-						<h5>one click ￥25</h5>
+						<h5 id="burgerPrice">one click ￥${user.burgerPrice}</h5>
 					</div>
 					<input type="image" src="img/burger.webp" class="d-block m-auto img-size-burger" id="burgerClick">
-					<button class="btn btn-primary mb-3 save-btn-font-size">save</button>
+					<button class="btn btn-primary mb-3 save-btn-font-size" id="saveBtn">save</button>
 				</div>
 				<div class="bg-dark m-2 col-8">
 					<div class="d-flex justify-content-center">
@@ -114,8 +124,8 @@ function createMainPage(user) {
 					<h5>￥${itemsInstance[i].cost}</h5>
 				</div>
 				<div class="col d-flex my-auto flex-column text-right">
-					<h3 class="pull-right" id="${itemsInstance[i].imgName}">0</h3>
-					<h5 class="text-warning">￥${itemsInstance[i].profit} /sec</h5>
+					<h3 class="pull-right" id="${itemsInstance[i].imgName}">${user.purchaseItems[itemsInstance[i].imgName]}</h3>
+					<h5 class="text-warning">${itemsInstance[i].profitHtml}</h5>
 				</div>
 			</div>
 		`
@@ -123,19 +133,36 @@ function createMainPage(user) {
 
 	config.mainPage.innerHTML = container;
 
+	// 購入アイテムがクリックされた時のイベント処理
 	for (let i = 0; i < itemsInstance.length; i++) {
 		document.getElementById(i).addEventListener("click", function() {
 			sidePageController(user, itemsInstance[i]);
 		})
 	}
 
+	// ハンバーガーがクリックされた時のイベント処理
 	let bugerClick = document.getElementById("burgerClick");
 	bugerClick.addEventListener("click", function() {
 		user.haveBurgers += 1;
 		document.getElementById("haveBurgers").innerHTML = user.haveBurgers + " Burgers";
 
-		user.haveMoney += 25;
+		user.haveMoney += user.burgerPrice;
 		document.getElementById("haveMoney").innerHTML = "￥" + user.haveMoney;
+	});
+
+	// saveボタンがクリックされた時のイベント処理
+	let saveBtn = document.getElementById("saveBtn");
+	saveBtn.addEventListener("click", function() {
+		// ユーザ情報をJSONにエンコード
+		let jsonEncoded = JSON.stringify(user);
+
+		// localStrageを使ってユーザーのブラウザ上にデータを保存
+		localStorage.setItem(user.userName, jsonEncoded);
+
+		displayNone(config.mainPage);
+		config.mainPage.innerHTML = "";
+		createInitialPage();
+		displayBlock(config.initialPage);
 	});
 }
 
@@ -153,7 +180,7 @@ function createSidePage(user, item) {
 						<h3 class="py-4">${item.imgName}</h3>
 						<h5 class="py-3">Max purchases: ${item.maxPurchase}</h5>
 						<h5 class="py-3">Price: ￥${item.cost}</h5>
-						<h5 class="py-3">Get: ${item.profit}</h5>
+						<h5 class="py-3">Get: ${item.profitHtml}</h5>
 					</div>
 					<img src=${item.imgUrl} class="img-size-items">
 				</div>
@@ -174,28 +201,40 @@ function createSidePage(user, item) {
 	
 	config.sidePage.innerHTML = container;
 
+	// Go Backボタンが押された時のイベント処理
 	document.getElementById("backBtn").addEventListener("click", function() {
 		displayNone(config.sidePage);
 		displayBlock(config.mainPage);
 	})
 
+	// アイテム購入数が変更された時のイベント処理
 	let purchaseNum = document.getElementById("purchaseNum");
 	purchaseNum.addEventListener("change", function() {
 		total = item.cost * parseInt(purchaseNum.value);
 		document.getElementById("total").innerHTML = `total ￥${total}`
 	})
 
+	// Purchaseボタンが押された時のイベント処理
 	let purchaseBtn = document.getElementById("purchaseBtn");
 	purchaseBtn.addEventListener("click", function() {
+		// 購入数が０ならアラート
 		if (parseInt(purchaseNum.value) === 0) {
 			alert("invalid value");
 		}
+		// 購入金額が所持金より多ければアラート
 		else if (total > user.haveMoney) {
 			alert("money shortage");
 		}
 		else {
 			tempNumUnitsPurchased = user.purchaseItems[item.imgName] + parseInt(purchaseNum.value);
-			if (tempNumUnitsPurchased > item.maxPurchase) {
+			itemMaxPurchase = item.maxPurchase;
+			// アイテムの最大購入数が無限のものは、intの最大値に置換
+			if (itemMaxPurchase === "infinite") {
+				itemMaxPurchase = Number.MAX_SAFE_INTEGER;
+			}
+
+			// アイテムの最大購入数より多ければアラート
+			if (tempNumUnitsPurchased > itemMaxPurchase) {
 				alert("over max purchases");
 			}
 			else {
@@ -203,6 +242,10 @@ function createSidePage(user, item) {
 				user.purchaseItems[item.imgName] += parseInt(purchaseNum.value);
 				document.getElementById("haveMoney").innerHTML = `￥${user.haveMoney}`;
 				document.getElementById(item.imgName).innerHTML = user.purchaseItems[item.imgName];
+				if (item.imgName === "Flip machine") {
+					user.burgerPrice += 25 * parseInt(purchaseNum.value);
+					document.getElementById("burgerPrice").innerHTML = `one click ￥${user.burgerPrice}`;
+				}
 				displayNone(config.sidePage);
 				displayBlock(config.mainPage);
 			}
@@ -231,22 +274,28 @@ function sidePageController(user, item) {
 function updateEverySecond(user) {
 	document.getElementById("days").innerHTML = `${user.pastDays}days`
 
-	if (user.pastDays > 365 && user.pastDays % 365 === 0) {
+	// ユーザの年齢更新
+	if (user.pastDays >= 365 && user.pastDays % 365 === 0) {
 		user.age += 1;
 		document.getElementById("age").innerHTML = `${user.age} years old`
 	}
 
+	// ユーザの所持金更新
 	let key = Object.keys(user.purchaseItems);
 	for (let i = 0; i < key.length; i++) {
-		user.haveMoney += getItemProfit(key[i]) * user.purchaseItems[key[i]];
+		if (key[i] !== "Flip machine") {
+			user.haveMoney += getItemProfit(key[i]) * user.purchaseItems[key[i]];
+		}
 	}
 	document.getElementById("haveMoney").innerHTML = `￥${user.haveMoney}`
 }
 
 // ゲームスタートのための関数
 function startGame() {
+	// ログイン画面の作成
 	createInitialPage();
 
+	// newGameボタンが押された時のイベント処理
 	let newGame = document.getElementById("newGame");
 	newGame.addEventListener("click", function() {
 		let userName = document.getElementById("userName").value;
@@ -270,8 +319,32 @@ function startGame() {
 			}, 1000);
 		}
 	})
+
+	// loginボタンが押された時のイベント処理
+	let login = document.getElementById("login");
+	login.addEventListener("click", function() {
+		let userName = document.getElementById("userName").value;
+		let userJsonEncoded = localStorage.getItem(userName);
+
+		// localStrageにデータがない場合はアラート
+		if (userJsonEncoded === null) {
+			alert("your data is none");
+		}
+		else {
+			// localStrageのJSONデータをデコード
+			let userJsonDecoded = JSON.parse(userJsonEncoded);
+			displayNone(config.initialPage);
+			config.initialPage.innerHTML = "";
+			createMainPage(userJsonDecoded);
+			displayBlock(config.mainPage);
+
+			setInterval(function() {
+				updateEverySecond(userJsonDecoded);
+				userJsonDecoded.pastDays++;
+			}, 1000);
+		}
+	})
 }
 
 // ゲームスタート
 startGame();
-
