@@ -10,6 +10,10 @@
 	height: 50%;
 }
 
+.save-btn-font-size {
+	font-size: 1.3rem;
+}
+
 .overflow-scroll {
 	overflow: scroll;
 	width: 100%;
