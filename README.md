@@ -1,4 +1,4 @@
-# Clicker-Empire-Game
+# ClickerEmpireGame
 
 # OverView
 仕事や投資、不動産等でお金を稼ぐインクリメンタルゲームです。コンピュータサイエンス学習サービス[Recursion](https://recursionist.io/)のアウトプットプロジェクト（Clicker Empire Game）として取り組みました。
