@@ -1,12 +1,12 @@
 # ClickerEmpireGame
 
-# OverView
+## OverView
 仕事や投資、不動産等でお金を稼ぐインクリメンタルゲームです。コンピュータサイエンス学習サービス[Recursion](https://recursionist.io/)のアウトプットプロジェクト（Clicker Empire Game）として取り組みました。
 
-# Demo
+## Demo
 [こちらのリンク](https://suuu0122.github.io/Clicker-Empire-Game/)からゲームページに飛べます。
 
-# LearningMatter
+## LearningMatter
 * JavaScript
 	* JavaScriptでの少し複雑なイベント処理
 	* 一定間隔での繰り返し処理（setInterval）
@@ -16,7 +16,7 @@
 	* json文字列のデコード
 	* localStorage
 
-# Rule
+## Rule
 | 名前                                   | タイプ | 最大購入数 | 説明                           | 値段
 |---------------------------------------|-------|------|------------------------------------|-------|
 | ハンバーガー用マシン（Flip machine）      | 能力   | 500  | グリルをクリックごとに25円を取得します。 | 15,000 |
