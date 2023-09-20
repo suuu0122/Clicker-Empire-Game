@@ -4,7 +4,7 @@
 仕事や投資、不動産等でお金を稼ぐインクリメンタルゲームです。コンピュータサイエンス学習サービス[Recursion](https://recursionist.io/)のアウトプットプロジェクト（Clicker Empire Game）として取り組みました。
 
 ## Demo
-[こちらのリンク](https://suuu0122.github.io/Clicker-Empire-Game/)からゲームページに飛べます。
+[こちらのリンク](https://suuu0122.github.io/ClickerEmpireGame/)からゲームページに飛べます。
 
 ## LearningMatter
 * JavaScript
